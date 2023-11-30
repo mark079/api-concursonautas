@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
-function getWeekdaysUntilDate($endDate, $arrayWithWeekdayAndScheduleID, $goal_id, $content_to_study)
+function getWeekdaysUntilDate($endDate, $arrayWithWeekdayAndScheduleID, $goal_id, $content_to_study, $type)
 {
     // Inicializa a data atual
     $currentDate = new DateTime('now');
@@ -53,7 +53,7 @@ function getWeekdaysUntilDate($endDate, $arrayWithWeekdayAndScheduleID, $goal_id
     ])->timeout(120)->post(
         'http://localhost:3001',
         [
-            'mensagem' => "Me retorne $count assuntos para estudar para a prova $content_to_study em formato array, preciso do formato [\"Assunto: Subconteudo\", \"Assunto: Subconteudo\"], lembrando que preciso dos $count resultados"
+            'mensagem' => "Me retorne $count assuntos para estudar para o $type do(a) $content_to_study em formato array, preciso estritamente do formato [\"Assunto: Subconteudo\", \"Assunto: Subconteudo\"], preciso somente do array sem numeração ou comentários"
         ],
     );
     
@@ -91,7 +91,7 @@ class StudyBlockController extends Controller
         
         // dados da meta em questão
         $goal = Goal::where('id', '=', $request->all()['goal_id'])->first();
-        
+        $types = ["V" => "Vestibular", "C" => "Concurso"];
         // horários cadastrados para essa meta
         $schedules = Schedule::where('goal_id', '=', $request->all()['goal_id'])->get();
         
@@ -106,7 +106,13 @@ class StudyBlockController extends Controller
         }
 
         // Obter os dias da semana até a data da prova e montar os objetos prontos para cadastrar
-        $arrayDate = getWeekdaysUntilDate($goal['test_date'], $arrayWithWeekdayAndScheduleID, $request->all()['goal_id'], $goal['content_to_study']);
+        $arrayDate = getWeekdaysUntilDate(
+            $goal['test_date'],
+            $arrayWithWeekdayAndScheduleID, 
+            $request->all()['goal_id'], 
+            $goal['content_to_study'],
+            $types[$goal['type']]
+        );
         
         $created = StudyBlock::insert($arrayDate);
         if ($created) {
