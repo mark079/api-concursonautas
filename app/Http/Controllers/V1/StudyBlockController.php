@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
+use function Laravel\Prompts\error;
+
 function getWeekdaysUntilDate($endDate, $arrayWithWeekdayAndScheduleID, $goal_id, $content_to_study, $type)
 {
     // Inicializa a data atual
@@ -88,7 +90,13 @@ class StudyBlockController extends Controller
      */
     public function store(Request $request)
     {
-        
+        $validator = Validator::make($request->all(), [
+            'goal_id' => 'required|exists:goals,id',
+        ]);
+
+        if($validator->fails()) {
+            return $this->error('Algo deu errado', 422);
+        }
         // dados da meta em questão
         $goal = Goal::where('id', '=', $request->all()['goal_id'])->first();
         $types = ["V" => "Vestibular", "C" => "Concurso"];
@@ -116,7 +124,7 @@ class StudyBlockController extends Controller
         
         $created = StudyBlock::insert($arrayDate);
         if ($created) {
-            return $this->success('Registred StudyBlock', 200);
+            return $this->success('Registred StudyBlock', 201);
         }
 
         return $this->error('Something went wrong', 400);

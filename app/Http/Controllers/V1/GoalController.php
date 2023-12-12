@@ -46,7 +46,7 @@ class GoalController extends Controller
         $created = Goal::create($validator->validated());
 
         if ($created) {
-            return $this->success('Registered Data', 200, new GoalResource($created));
+            return $this->success('Registered Data', 201, new GoalResource($created));
         }
         return $this->error('Something went wrong', 400);
     }

@@ -7,7 +7,6 @@ use App\Http\Resources\V1\ScheduleResource;
 use App\Models\Schedule;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class ScheduleController extends Controller
@@ -43,7 +42,7 @@ class ScheduleController extends Controller
         
         $created = Schedule::insert($request->all());
         if ($created) {
-            return $this->success("Registred Data", 200);
+            return $this->success("Registred Data", 201);
         }
 
         return $this->error('Something went wrong', 400);
