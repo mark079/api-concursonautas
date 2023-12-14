@@ -16,12 +16,13 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedBigInteger('goal_id');
-            $table->foreign('goal_id')->references('id')->on('goals');
+            $table->foreign('goal_id')->references('id')->on('goals')->onDelete('cascade');
             $table->unsignedBigInteger('schedule_id');
             $table->foreign('schedule_id')->references('id')->on('schedules')->onDelete('cascade');
             $table->string('content');
             $table->date('date');
             $table->boolean('completed');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

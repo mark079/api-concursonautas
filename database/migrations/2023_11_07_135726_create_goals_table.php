@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('type');
             $table->date('test_date');
             $table->string('content_to_study');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

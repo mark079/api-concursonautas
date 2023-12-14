@@ -28,7 +28,7 @@ function getWeekdaysUntilDate($endDate, $arrayWithWeekdayAndScheduleID, $goal_id
     while ($currentDate <= $endDateTime) {
         // Obtém o dia da semana (1 para segunda-feira, 7 para domingo)
         $dayOfWeek = $currentDate->format('N');
-        
+
         // Itera sobre o array com dias da semana e IDs de cronogramas
         foreach ($arrayWithWeekdayAndScheduleID as $weekdayAndScheduleID) {
             // Adiciona um novo elemento ao array de dias de estudo, se o dia da semana da data atual corresponder ao dia da semana no array
@@ -49,7 +49,7 @@ function getWeekdaysUntilDate($endDate, $arrayWithWeekdayAndScheduleID, $goal_id
 
     // Obtém o número de elementos no array de dias de estudo
     $count = count($studyDaysWithSchedules);
-    
+
     $response = Http::withHeaders([
         'Content-Type' => 'application/json',
     ])->timeout(120)->post(
@@ -58,7 +58,7 @@ function getWeekdaysUntilDate($endDate, $arrayWithWeekdayAndScheduleID, $goal_id
             'mensagem' => "Me retorne $count assuntos para estudar para o $type do(a) $content_to_study em formato array, preciso estritamente do formato [\"Assunto: Subconteudo\", \"Assunto: Subconteudo\"], preciso somente do array sem numeração ou comentários"
         ],
     );
-    
+
 
     $data = $response->json();
 
@@ -94,7 +94,7 @@ class StudyBlockController extends Controller
             'goal_id' => 'required|exists:goals,id',
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return $this->error('Algo deu errado', 422);
         }
         // dados da meta em questão
@@ -102,7 +102,7 @@ class StudyBlockController extends Controller
         $types = ["V" => "Vestibular", "C" => "Concurso"];
         // horários cadastrados para essa meta
         $schedules = Schedule::where('goal_id', '=', $request->all()['goal_id'])->get();
-        
+
         $arrayWithWeekdayAndScheduleID = [];
 
         // capturando dados da tabela de horários
@@ -116,19 +116,18 @@ class StudyBlockController extends Controller
         // Obter os dias da semana até a data da prova e montar os objetos prontos para cadastrar
         $arrayDate = getWeekdaysUntilDate(
             $goal['test_date'],
-            $arrayWithWeekdayAndScheduleID, 
-            $request->all()['goal_id'], 
+            $arrayWithWeekdayAndScheduleID,
+            $request->all()['goal_id'],
             $goal['content_to_study'],
             $types[$goal['type']]
         );
-        
+
         $created = StudyBlock::insert($arrayDate);
         if ($created) {
             return $this->success('Registred StudyBlock', 201);
         }
 
         return $this->error('Something went wrong', 400);
-
     }
 
     /**
@@ -176,10 +175,9 @@ class StudyBlockController extends Controller
         if ($studyBlock) {
             // Atualizar apenas o campo 'nome'
             $studyBlock->update(['completed' => $completed]);
-            return $this->success('Registred', 200);
-            // return redirect()->route('sua.rota')->with('success', 'Dado atualizado com sucesso!');
+            return $this->success('Registred', 200, $studyBlock);
         } else {
-            return response()->json('error');
+            return $this->error('error', 422);
         }
     }
 
